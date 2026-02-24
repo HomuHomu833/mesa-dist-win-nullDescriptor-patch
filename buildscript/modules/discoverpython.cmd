@@ -9,14 +9,14 @@
 
 @rem Count and list supported python installations
 @set pythontotal=0
-@FOR /F delims^=^ eol^= %%a IN ('py -0 2^>nul') do @IF NOT "%%a"=="" FOR /F tokens^=1-3^ delims^=-vV^:^[.^]Ppython^  %%b IN ("%%a") do @(
+@FOR /F delims^=^ eol^= %%a IN ('py -0 2^>nul') do @IF NOT "%%a"=="" FOR /F tokens^=1^ delims^=^  %%b IN ("%%a") do @FOR /F tokens^=1-3^ delims^=[] %%c IN ("%%b") do @FOR /F tokens^=1^ delims^=-aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQsStTuUvVwWxXyYzZ^:^*^(^) %%f IN ("%%c%%d%%e") do @FOR /F tokens^=1^*^ delims^=. %%g IN ("%%f") do @(
 @set goodpython=1
-@if %%b LSS %1 set goodpython=0
-@if %%b EQU %1 if %%c LSS %2 set goodpython=0
+@if %%g LSS %1 set goodpython=0
+@if %%g EQU %1 if %%h LSS %2 set goodpython=0
 @IF !goodpython!==1 set /a pythontotal+=1
 @IF !pythontotal!==1 echo Select Python installation
 @IF !goodpython!==1 echo !pythontotal!. %%a
-@IF !goodpython!==1 set pyl[!pythontotal!]=-%%b.%%c-%%d
+@IF !goodpython!==1 set pyl[!pythontotal!]=%%c%%d%%e
 )
 @IF %pythontotal%==0 echo WARNING: No suitable Python installation found by Python launcher.
 @IF %pythontotal%==0 echo Python %1.%2 and newer is required.
@@ -27,16 +27,13 @@
 :pyselect
 @call "%devroot%\%projectname%\bin\modules\prompt.cmd" pyselect "Select Python version by entering its index from the table above:"
 @IF "%pyselect%"=="" echo Invalid entry.
-@IF "%pyselect%"=="" pause
-@IF "%pyselect%"=="" echo.
+@IF "%pyselect%"=="" call "%devroot%\%projectname%\bin\modules\break.cmd"
 @IF "%pyselect%"=="" GOTO pyselect
 @IF %pyselect% LEQ 0 echo Invalid entry.
-@IF %pyselect% LEQ 0 pause
-@IF %pyselect% LEQ 0 echo.
+@IF %pyselect% LEQ 0 call "%devroot%\%projectname%\bin\modules\break.cmd"
 @IF %pyselect% LEQ 0 GOTO pyselect
 @IF %pyselect% GTR %pythontotal% echo Invalid entry.
-@IF %pyselect% GTR %pythontotal% pause
-@IF %pyselect% GTR %pythontotal% echo.
+@IF %pyselect% GTR %pythontotal% call "%devroot%\%projectname%\bin\modules\break.cmd"
 @IF %pyselect% GTR %pythontotal% GOTO pyselect
 
 @rem Locate selected Python installation
@@ -54,8 +51,7 @@
 @if NOT "%ERRORLEVEL%"=="0" set pythonloc="%devroot%\python\python.exe"
 @IF %pythonloc%=="%devroot%\python\python.exe" IF NOT EXIST %pythonloc% (
 @echo Python is unreachable. Cannot continue.
-@echo.
-@pause
+@call "%devroot%\%projectname%\bin\modules\break.cmd" 1
 @exit
 )
 @IF %pythonloc%==python.exe set exitloop=1
@@ -65,8 +61,7 @@ SET pythonloc="%%~a"
 )
 @if EXIST "%pythonloc:~1,-11%pyvenv.cfg" (
 @echo Python virtual environments are ignored by this discovery tool. Cannot continue.
-@echo.
-@pause
+@call "%devroot%\%projectname%\bin\modules\break.cmd" 1
 @exit
 )
 
@@ -81,8 +76,7 @@ SET pythonloc="%%~a"
 )
 @IF %goodpython% EQU 0 (
 @echo Your Python version is too old. Only Python %1.%2 and newer is supported.
-@echo.
-@pause
+@call "%devroot%\%projectname%\bin\modules\break.cmd" 1
 @exit
 )
 

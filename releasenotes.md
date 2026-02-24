@@ -1,3 +1,28 @@
+# 25.3.6
+- Updated Mesa3D to [25.3.6](https://gitlab.freedesktop.org/mesa/mesa/-/blob/25.3/docs/relnotes/25.3.6.rst?ref_type=heads&plain=0).
+### Build script
+- Python discovery: Fix compatibility with 2nd generation Python launcher py -0 format;
+- Python discovery: Improve 3rd-party Python implementations compatibility.
+# 25.3.5
+- Updated Mesa3D to [25.3.5](https://gitlab.freedesktop.org/mesa/mesa/-/blob/25.3/docs/relnotes/25.3.5.rst?ref_type=heads&plain=0).
+### Build script
+- Unattended: Split out configuration into modules;
+- Unattended: Fix retry build infinite loop.
+# 25.3.4
+- Updated Mesa3D to [25.3.4](https://gitlab.freedesktop.org/mesa/mesa/-/blob/25.3/docs/relnotes/25.3.4.rst?ref_type=heads&plain=0).
+### Deployment
+- [Improve container compatibility](https://github.com/pal1000/mesa-dist-win/pull/231).
+### Build script
+- Interactive mode: Generate timestamped unattended mode configuration during execution;
+- Implement and use an unattended aware pause module;
+- Implement C/C++ toolset selection support to [fix Windows 7/Server 2008 R2 support when building with VS 2026](https://github.com/pal1000/mesa-dist-win/issues/233);
+- Improve compilation performance with cmake VS backend on ARM64 by no longer running the compiler through emulation layer when making x86 or x64 binaries;
+- Fix SPIRV-Tools static link - #234.
+- Add 6 unattended execution bot profiles.
+### Build environment information
+- Add VS C/C++ toolset version.
+# 25.3.3
+- Updated Mesa3D to [25.3.3](https://gitlab.freedesktop.org/mesa/mesa/-/blob/25.3/docs/relnotes/25.3.3.rst?ref_type=heads&plain=0).
 # 25.3.2
 - Updated Mesa3D to [25.3.2](https://gitlab.freedesktop.org/mesa/mesa/-/blob/25.3/docs/relnotes/25.3.2.rst?ref_type=heads&plain=0).
 ### Build script

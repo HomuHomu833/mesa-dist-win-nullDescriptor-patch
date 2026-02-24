@@ -38,11 +38,10 @@
 
 @rem Construct build configuration command.
 @set buildconf=cmake "%devroot%\clon12" -G
-@if /I NOT "%useninja%"=="y" set buildconf=%buildconf% "Visual Studio %toolset%"
+@if /I NOT "%useninja%"=="y" set buildconf=%buildconf% "Visual Studio %toolset%" -Thost=%hostabi:arm=ARM%,version=%msvcpp%
 @if %abi%==x86 if /I NOT "%useninja%"=="y" set buildconf=%buildconf% -A Win32,version=%WINSDK_VER%
 @if %abi%==x64 if /I NOT "%useninja%"=="y" set buildconf=%buildconf% -A x64,version=%WINSDK_VER%
 @if %abi%==arm64 if /I NOT "%useninja%"=="y" set buildconf=%buildconf% -A ARM64,version=%WINSDK_VER%
-@if /I NOT "%useninja%"=="y" IF /I %PROCESSOR_ARCHITECTURE%==AMD64 set buildconf=%buildconf% -Thost=x64
 @if /I "%useninja%"=="y" set buildconf=%buildconf%Ninja
 @set buildconf=%buildconf% -DBUILD_TESTS=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_INSTALL_PREFIX="%devroot%\clon12\build\%abi%"
 
@@ -51,8 +50,7 @@
 
 @rem Always clean build
 @cd "%devroot%\clon12"
-@pause
-@echo.
+@call "%devroot%\%projectname%\bin\modules\break.cmd"
 @echo Cleanning CLonD3D12 build. Please wait...
 @echo.
 @if EXIST "build\%abi%\" RD /S /Q build\%abi%
@@ -60,11 +58,10 @@
 @if NOT EXIST "out\" md out
 @md out\%abi%
 @cd out\%abi%
-@pause
-@echo.
+@call "%devroot%\%projectname%\bin\modules\break.cmd"
 
 @rem Load Visual Studio environment. Can only be loaded in the background when using MsBuild.
-@if /I "%useninja%"=="y" call %vsenv% %WINSDK_VER% %vsabi%
+@if /I "%useninja%"=="y" call %vsenv% %WINSDK_VER% %vsabi% -vcvars_ver=%msvcpp%
 @if /I "%useninja%"=="y" cd "%devroot%\clon12\out\%abi%"
 @if /I "%useninja%"=="y" echo.
 
@@ -74,15 +71,13 @@
 @find /i /c "t/d3d12t" "%devroot%\clon12\cmakelists.txt" >nul 2>&1
 @if %ERRORLEVEL%==0 nuget restore openclon12.sln -Source https://api.nuget.org/v3/index.json
 @echo.
-@pause
-@echo.
+@call "%devroot%\%projectname%\bin\modules\break.cmd"
 @if /I NOT "%useninja%"=="y" call "%devroot%\%projectname%\buildscript\modules\trybuild.cmd" cmake --build . -j %throttle% --config Release
 @if /I "%useninja%"=="y" call "%devroot%\%projectname%\buildscript\modules\trybuild.cmd" ninja -j %throttle%
 @echo.
 
 @rem Avoid race condition in SPIRV Tools sources checkout.
-@pause
-@echo.
+@call "%devroot%\%projectname%\bin\modules\break.cmd"
 
 :skipclon12
 @rem Reset environment after CLonD3D12 build.

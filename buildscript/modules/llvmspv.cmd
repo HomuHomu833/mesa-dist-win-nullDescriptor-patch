@@ -57,29 +57,26 @@
 @set buildconf=%buildconf% "%devroot%\SPIRV-LLVM-Translator"
 @echo SPIRV LLVM translator build configuration command^: %buildconf%
 @echo.
-@pause
-@echo.
+@call "%devroot%\%projectname%\bin\modules\break.cmd"
 @echo Cleanning SPIRV LLVM translator build. Please wait...
 @echo.
 @if EXIST "%llvminstloc%\spv-%abi%\" RD /S /Q "%llvminstloc%\spv-%abi%"
 @if EXIST "%devroot%\SPIRV-LLVM-Translator\build\bldspv-%abi%\" RD /S /Q "%devroot%\SPIRV-LLVM-Translator\build\bldspv-%abi%"
-@pause
-@echo.
+@call "%devroot%\%projectname%\bin\modules\break.cmd"
 @if NOT EXIST "%devroot%\SPIRV-LLVM-Translator\build\" MD "%devroot%\SPIRV-LLVM-Translator\build"
 @cd "%devroot%\SPIRV-LLVM-Translator\build"
 @if NOT EXIST "bldspv-%abi%\" md bldspv-%abi%
 @cd bldspv-%abi%
 
 @rem Load Visual Studio environment. Can only be loaded in the background when using MsBuild.
-@if /I "%useninja%"=="y" call %vsenv% %WINSDK_VER% %vsabi%
+@if /I "%useninja%"=="y" call %vsenv% %WINSDK_VER% %vsabi% -vcvars_ver=%msvcpp%
 @if /I "%useninja%"=="y" cd "%devroot%\SPIRV-LLVM-Translator\build\bldspv-%abi%"
 @if /I "%useninja%"=="y" echo.
 
 @rem Configure and execute the build with the configuration made above.
 @%buildconf%
 @echo.
-@pause
-@echo.
+@call "%devroot%\%projectname%\bin\modules\break.cmd"
 @if /I NOT "%useninja%"=="y" call "%devroot%\%projectname%\buildscript\modules\trybuild.cmd" cmake --build . -j %throttle% --config Release --target install
 @if /I "%useninja%"=="y" call "%devroot%\%projectname%\buildscript\modules\trybuild.cmd" ninja -j %throttle% install
 @echo.

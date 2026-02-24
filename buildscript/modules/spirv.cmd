@@ -4,7 +4,7 @@
 @IF EXIST "%devroot%\spirv-tools\DEPS" IF NOT EXIST "%devroot%\spirv-tools\external\spirv-headers\" IF %gitstate% EQU 0 set canspvtools=0
 @if %cmakestate% EQU 0 set canspvtools=0
 
-@set spvtoolsrel=vulkan-sdk-1.4.335.0
+@set spvtoolsrel=vulkan-sdk-1.4.341.0
 @IF EXIST "%devroot%\spirv-tools\external\" IF %gitstate% GTR 0 (
 @echo Updating SPIRV tools source code...
 @cd "%devroot%\spirv-tools"
@@ -48,11 +48,10 @@
 
 @rem Construct build configuration command.
 @set buildconf=cmake "%devroot%\spirv-tools" -G
-@if /I NOT "%useninja%"=="y" set buildconf=%buildconf% "Visual Studio %toolset%"
+@if /I NOT "%useninja%"=="y" set buildconf=%buildconf% "Visual Studio %toolset%" -Thost=%hostabi:arm=ARM%,version=%msvcpp%
 @if %abi%==x86 if /I NOT "%useninja%"=="y" set buildconf=%buildconf% -A Win32,version=%WINSDK_VER%
 @if %abi%==x64 if /I NOT "%useninja%"=="y" set buildconf=%buildconf% -A x64,version=%WINSDK_VER%
 @if %abi%==arm64 if /I NOT "%useninja%"=="y" set buildconf=%buildconf% -A ARM64,version=%WINSDK_VER%
-@if /I NOT "%useninja%"=="y" IF /I %PROCESSOR_ARCHITECTURE%==AMD64 set buildconf=%buildconf% -Thost=x64
 @if /I "%useninja%"=="y" set buildconf=%buildconf%Ninja
 @set buildconf=%buildconf% -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_DEFAULT_CMP0091=NEW -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_INSTALL_PREFIX="%devroot%\spirv-tools\build\%abi%"
 
@@ -61,8 +60,7 @@
 
 @rem Always clean build
 @cd "%devroot%\spirv-tools"
-@pause
-@echo.
+@call "%devroot%\%projectname%\bin\modules\break.cmd"
 @echo Cleanning SPIRV Tools build. Please wait...
 @echo.
 @if EXIST "build\%abi%\" RD /S /Q build\%abi%
@@ -70,26 +68,23 @@
 @if NOT EXIST "out\" md out
 @md out\%abi%
 @cd out\%abi%
-@pause
-@echo.
+@call "%devroot%\%projectname%\bin\modules\break.cmd"
 
 @rem Load Visual Studio environment. Can only be loaded in the background when using MsBuild.
-@if /I "%useninja%"=="y" call %vsenv% %WINSDK_VER% %vsabi%
+@if /I "%useninja%"=="y" call %vsenv% %WINSDK_VER% %vsabi% -vcvars_ver=%msvcpp%
 @if /I "%useninja%"=="y" cd "%devroot%\spirv-tools\out\%abi%"
 @if /I "%useninja%"=="y" echo.
 
 @rem Configure and execute the build with the configuration made above.
 @%buildconf%
 @echo.
-@pause
-@echo.
+@call "%devroot%\%projectname%\bin\modules\break.cmd"
 @if /I NOT "%useninja%"=="y" call "%devroot%\%projectname%\buildscript\modules\trybuild.cmd" cmake --build . -j %throttle% --config Release --target install
 @if /I "%useninja%"=="y" call "%devroot%\%projectname%\buildscript\modules\trybuild.cmd" ninja -j %throttle% install
 @echo.
 
 @rem Avoid race condition in VA-API library sources checkout.
-@pause
-@echo.
+@call "%devroot%\%projectname%\bin\modules\break.cmd"
 
 :skipspvtools
 @rem Reset environment after SPIRV Tools build.

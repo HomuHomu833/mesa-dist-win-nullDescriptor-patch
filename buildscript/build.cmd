@@ -15,13 +15,22 @@
 @rem Create folder to store generated resource files, MSYS2 shell scripts, Python virtual environment and Powershell temporary downloads.
 @IF NOT EXIST "%devroot%\%projectname%\buildscript\assets\" md "%devroot%\%projectname%\buildscript\assets"
 
+@rem Init bot mode
+@if NOT EXIST "%devroot%\%projectname%\buildscript\bots\" md "%devroot%\%projectname%\buildscript\bots"
+@for /f tokens^=^* %%a IN ("%date%%time%") DO @set bottimestamp=%%a
+@set bottimestamp=%bottimestamp: =%
+@set bottimestamp=%bottimestamp:/=%
+@set bottimestamp=%bottimestamp::=%
+@set bottimestamp=%bottimestamp:.=%
+
 @rem Command line option to disable out of tree patches for Mesa3D
 @IF "%1"=="disableootpatch" set disableootpatch=1
 @IF "%disableootpatch%"=="1" set TITLE=%TITLE% ^(out of tree patches disabled^)
 @IF "%disableootpatch%"=="1" TITLE %TITLE%
 
-@rem Default CI mode disabled
-@IF NOT defined cimode set cimode=0
+@rem Default bot mode disabled
+@IF NOT defined botmode set botmode=0
+@if %botmode% EQU 0 echo @set botmode=^1>"%devroot%\%projectname%\buildscript\bots\bot-%bottimestamp%.cmd"
 
 @rem Analyze environment. Get each dependency status: 0=missing, 1=standby/load manually in PATH, 2=cannot be unloaded.
 @rem Not all dependencies can have all these states.
@@ -37,6 +46,9 @@
 
 @rem Locate Windows SDK even when building with MinGW
 @call "%devroot%\%projectname%\buildscript\modules\winsdkloc.cmd"
+
+@rem MSVC: Select C/C++ toolset
+@IF %toolchain%==msvc call "%devroot%\%projectname%\buildscript\modules\msvcpp.cmd"
 
 @rem Verify if out of tree patches can be applied.
 @call "%devroot%\%projectname%\buildscript\modules\patching.cmd"
@@ -117,5 +129,8 @@
 @rem Dump build environment information
 @call "%devroot%\%projectname%\buildscript\modules\envdump.cmd"
 
-@pause
-@exit
+@rem Finish bot mode configuration
+@if %botmode% EQU 0 echo @call "%%~dp0..\build.cmd">>"%devroot%\%projectname%\buildscript\bots\bot-%bottimestamp%.cmd"
+
+@call "%devroot%\%projectname%\bin\modules\break.cmd"
+@exit /B

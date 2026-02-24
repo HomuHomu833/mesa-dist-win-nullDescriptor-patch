@@ -19,13 +19,13 @@
 @git checkout pkgconf-2.5.1
 @echo.
 )
-@IF EXIST pkgconf\pkg-config.exe if %cimode% EQU 0 set buildpkgconf=n
+@IF EXIST pkgconf\pkg-config.exe if %botmode% EQU 0 set buildpkgconf=n
 @IF EXIST pkgconf\pkg-config.exe call "%devroot%\%projectname%\bin\modules\prompt.cmd" buildpkgconf "Do you want to rebuild pkgconf (y/n):"
 @IF NOT EXIST pkgconf\pkg-config.exe set buildpkgconf=y
 @IF NOT EXIST pkgconf\pkg-config.exe echo Begin pkgconf build...
 @IF NOT EXIST pkgconf\pkg-config.exe echo.
 @IF /I NOT "%buildpkgconf%"=="y" GOTO missingpkgconf
-@call %vsenv% %WINSDK_VER% %hostabi%
+@call %vsenv% %WINSDK_VER% %hostabi% -vcvars_ver=%msvcpp%
 @cd "%devroot%\pkgconf"
 @echo.
 @IF EXIST "pkgconf\" RD /S /Q pkgconf
@@ -36,8 +36,7 @@
 @IF /I NOT "%useninja%"=="y" %mesonloc% setup pkgconf --backend=vs --buildtype=release
 @IF /I "%useninja%"=="y" %mesonloc% setup pkgconf --backend=ninja --buildtype=release
 @echo.
-@pause
-@echo.
+@call "%devroot%\%projectname%\bin\modules\break.cmd"
 @cd pkgconf
 @IF /I NOT "%useninja%"=="y" echo Performing pkgconf build with : msbuild pkgconf.sln /m^:%throttle% /v^:m
 @IF /I "%useninja%"=="y" echo Performing pkgconf build with : ninja -j %throttle%
