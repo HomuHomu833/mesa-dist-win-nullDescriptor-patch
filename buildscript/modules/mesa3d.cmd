@@ -153,16 +153,19 @@
 @IF %intmesaver% LSS 22352 call "%devroot%\%projectname%\buildscript\modules\applypatch.cmd" fix-llvm-clang15-link
 
 @rem Fix Microsoft CLC runtime compilation with LLVM and clang 15
-@IF %intmesaver% LSS 23050 call "%devroot%\%projectname%\buildscript\modules\applypatch.cmd" mclc-clang15
+@IF %intmesaver% LSS 23050 call "%devroot%\%projectname%\buildscript\modules\applypatch.cmd" mclc-llvm+clang15
 
 @rem Fix Microsoft CLC build with LLVM and clang 16
-@IF %intmesaver% LSS 23104 call "%devroot%\%projectname%\buildscript\modules\applypatch.cmd" mclc-clang16
+@IF %intmesaver% LSS 23104 call "%devroot%\%projectname%\buildscript\modules\applypatch.cmd" mclc-llvm+clang16
 
 @rem LLVM+clang 17 linking compatibility
 @IF %intmesaver% LSS 23300 call "%devroot%\%projectname%\buildscript\modules\applypatch.cmd" clover_llvm-move-to-modern-pass-manager
 
 @rem LLVM+clang 18 linking compatibility
 @IF %intmesaver% LSS 24055 call "%devroot%\%projectname%\buildscript\modules\applypatch.cmd" mclc-llvm+clang18
+
+@rem LLVM+clang 22 linking compatibility
+@call "%devroot%\%projectname%\buildscript\modules\applypatch.cmd" mclc-llvm+clang22
 
 @rem Fix vaon12 filename
 @IF %intmesaver% LSS 23200 call "%devroot%\%projectname%\buildscript\modules\applypatch.cmd" vaon12-strip-lib-prefix
@@ -345,8 +348,8 @@
 @if %botmode% EQU 0 set lavapipe=n
 @set canlavapipe=1
 @if /I "%llvmless%"=="y" set canlavapipe=0
-@IF %intmesaver% LSS 21100 set canlavapipe=0
 @if /I NOT "%glswrast%"=="y" set canlavapipe=0
+@IF %canmcrdrvcom% EQU 0 set canlavapipe=0
 @IF %intmesaver:~0,3% EQU 211 IF %intmesaver% LSS 21151 IF %toolchain%==msvc if %abi%==x86 IF %disableootpatch%==1 set canlavapipe=0
 @IF %toolchain%==msvc IF %intmesaver% GEQ 21301 IF %intmesaver% LSS 21303 IF %abi%==x86 IF %disableootpatch%==1 set canlavapipe=0
 @IF %glslangval% EQU 0 IF %intmesaver% GEQ 25000 set canlavapipe=0
@@ -357,7 +360,7 @@
 @if %botmode% EQU 0 set radv=n
 @set canradv=1
 @if /I "%llvmless%"=="y" set canradv=0
-@IF %intmesaver% LSS 21200 set canradv=0
+@IF %canmcrdrvcom% EQU 0 set canradv=0
 @IF %abi%==x86 IF %intmesaver% LSS 22000 set canradv=0
 @IF %toolchain%==msvc IF NOT EXIST "%llvminstloc%\%abi%\lib\LLVMAMDGPU*.lib" set canradv=0
 @IF %toolchain%==msvc IF NOT EXIST "%devroot%\mesa\subprojects\libelf-lfg-win32\" IF %gitstate% EQU 0 set canradv=0
@@ -378,6 +381,7 @@
 @if /I "%dozenmsvk%"=="y" set /a mesavkcount+=1
 
 @set cangfxstream=1
+@IF %canmcrdrvcom% EQU 0 set cangfxstream=0
 @IF %intmesaver% LSS 25000 set cangfxstream=0
 @IF %toolchain%==msvc set cangfxstream=0
 @IF /I NOT "%experimental%"=="y" set cangfxstream=0
